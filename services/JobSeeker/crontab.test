@@ -1,0 +1,1 @@
+* * * * * /app/scripts/cron_probe.sh >> /shared/logs/${SERVICE_NAME}.cron.test.log 2>&1

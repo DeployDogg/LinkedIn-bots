@@ -1,0 +1,178 @@
+services:
+  linkedin-browser:
+    build: ./services/LinkedInBrowser
+    image: linkedin-browser:local
+    container_name: linkedin-browser
+    volumes:
+      - linkedin_browser_profile:/profile
+      - ./shared/browser_session_backup:/session-backup
+    ports:
+      - "127.0.0.1:6080:6080"
+    expose:
+      - "9222"
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "/app/scripts/healthcheck.sh"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 30s
+
+  jobseeker:
+    build: ./services/JobSeeker
+    image: linkedin-jobseeker:local
+    container_name: linkedin-jobseeker
+    env_file: .env.workers
+    environment:
+      SERVICE_NAME: JobSeeker
+      CENTRAL_SCHEDULER_MODE: "1"
+      CRON_TEST_MODE: ${CRON_TEST_MODE:-0}
+      SAFE_MODE: ${SAFE_MODE:-0}
+      LINKEDIN_CDP_ENDPOINT: http://linkedin-browser:9222
+    depends_on:
+      linkedin-browser:
+        condition: service_healthy
+    volumes: &common_volumes
+      - ./shared/legacy_state:/Users/deploydog-ai/LinkedIn/shared/legacy_state
+      - ./shared/message_state:/Users/deploydog-ai/LinkedIn/shared/message_state
+      - ./shared/comment_state:/Users/deploydog-ai/LinkedIn/shared/comment_state
+      - ./shared/screenshots:/Users/deploydog-ai/LinkedIn/BlockScreenshots
+      - ./shared/resumes:/Users/deploydog-ai/Downloads/RESUME:ro
+      - ./shared/logs:/shared/logs
+      - ./shared/block_screenshots:/shared/block_screenshots
+      - linkedin_runtime:/shared/runtime
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "/app/scripts/healthcheck.sh"]
+      interval: 60s
+      timeout: 10s
+      retries: 3
+      start_period: 90s
+
+  connectman:
+    build: ./services/ConnectMan
+    image: linkedin-connectman:local
+    container_name: linkedin-connectman
+    env_file: .env.workers
+    environment:
+      SERVICE_NAME: ConnectMan
+      CENTRAL_SCHEDULER_MODE: "1"
+      CRON_TEST_MODE: ${CRON_TEST_MODE:-0}
+      SAFE_MODE: ${SAFE_MODE:-0}
+      LINKEDIN_CDP_ENDPOINT: http://linkedin-browser:9222
+      LINKEDIN_CONNECT_HEADLESS: "1"
+    depends_on:
+      linkedin-browser:
+        condition: service_healthy
+    volumes: *common_volumes
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "/app/scripts/healthcheck.sh"]
+      interval: 60s
+      timeout: 10s
+      retries: 3
+      start_period: 90s
+
+  sendman:
+    build: ./services/SendMan
+    image: linkedin-sendman:local
+    container_name: linkedin-sendman
+    env_file: .env.workers
+    environment:
+      SERVICE_NAME: SendMan
+      CENTRAL_SCHEDULER_MODE: "1"
+      CRON_TEST_MODE: ${CRON_TEST_MODE:-0}
+      SAFE_MODE: ${SAFE_MODE:-0}
+      LINKEDIN_CDP_ENDPOINT: http://linkedin-browser:9222
+    depends_on:
+      linkedin-browser:
+        condition: service_healthy
+    volumes: *common_volumes
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "/app/scripts/healthcheck.sh"]
+      interval: 60s
+      timeout: 10s
+      retries: 3
+      start_period: 90s
+
+  postliker:
+    build: ./services/PostLiker
+    image: linkedin-postliker:local
+    container_name: linkedin-postliker
+    env_file: .env.workers
+    environment:
+      SERVICE_NAME: PostLiker
+      CENTRAL_SCHEDULER_MODE: "1"
+      CRON_TEST_MODE: ${CRON_TEST_MODE:-0}
+      SAFE_MODE: ${SAFE_MODE:-0}
+      LINKEDIN_CDP_ENDPOINT: http://linkedin-browser:9222
+      LINKEDIN_LIKE_HEADLESS: "1"
+    depends_on:
+      linkedin-browser:
+        condition: service_healthy
+    volumes: *common_volumes
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "/app/scripts/healthcheck.sh"]
+      interval: 60s
+      timeout: 10s
+      retries: 3
+      start_period: 90s
+
+#   commentator:
+#     build: ./services/Commentator
+#     image: linkedin-commentator:local
+#     container_name: linkedin-commentator
+#     env_file: .env.workers
+#     environment:
+#       SERVICE_NAME: Commentator
+#       CENTRAL_SCHEDULER_MODE: "1"
+#       CRON_TEST_MODE: ${CRON_TEST_MODE:-0}
+#       SAFE_MODE: ${SAFE_MODE:-0}
+#       LINKEDIN_CDP_ENDPOINT: http://linkedin-browser:9222
+#       LINKEDIN_COMMENTATOR_DRY_RUN: ${LINKEDIN_COMMENTATOR_DRY_RUN:-1}
+#       LINKEDIN_COMMENTATOR_SEND_TELEGRAM: ${LINKEDIN_COMMENTATOR_SEND_TELEGRAM:-0}
+#       LINKEDIN_COMMENTATOR_PUBLISH_APPROVED: ${LINKEDIN_COMMENTATOR_PUBLISH_APPROVED:-0}
+#       LINKEDIN_COMMENTATOR_PAUSE_ALL: ${LINKEDIN_COMMENTATOR_PAUSE_ALL:-0}
+#       LINKEDIN_COMMENTATOR_PAUSE_PUBLISHING: ${LINKEDIN_COMMENTATOR_PAUSE_PUBLISHING:-1}
+#       LINKEDIN_COMMENTATOR_MAX_ITEMS: ${LINKEDIN_COMMENTATOR_MAX_ITEMS:-20}
+#       LINKEDIN_COMMENTATOR_MAX_POSTS: ${LINKEDIN_COMMENTATOR_MAX_POSTS:-100}
+#       LINKEDIN_COMMENTATOR_SCAN_POSTS: ${LINKEDIN_COMMENTATOR_SCAN_POSTS:-1}
+#       LINKEDIN_COMMENTATOR_NO_DELAY: ${LINKEDIN_COMMENTATOR_NO_DELAY:-0}
+#       LINKEDIN_COMMENTATOR_CODEX_COMMAND: ${LINKEDIN_COMMENTATOR_CODEX_COMMAND:-/app/scripts/codex_generate_reply.sh}
+#       LINKEDIN_COMMENTATOR_CODEX_TIMEOUT_SECONDS: ${LINKEDIN_COMMENTATOR_CODEX_TIMEOUT_SECONDS:-120}
+#       LINKEDIN_COMMENTATOR_PUBLISHING_STALE_MINUTES: ${LINKEDIN_COMMENTATOR_PUBLISHING_STALE_MINUTES:-60}
+#       LINKEDIN_COMMENTATOR_MAX_PUBLISH_ATTEMPTS: ${LINKEDIN_COMMENTATOR_MAX_PUBLISH_ATTEMPTS:-3}
+#       LINKEDIN_COMMENTATOR_ZERO_POSTS_ALERT_RUNS: ${LINKEDIN_COMMENTATOR_ZERO_POSTS_ALERT_RUNS:-3}
+#       LINKEDIN_COMMENTATOR_CODEX_FAILURE_ALERT_RUNS: ${LINKEDIN_COMMENTATOR_CODEX_FAILURE_ALERT_RUNS:-3}
+#       LINKEDIN_COMMENTATOR_HEALTH_MAX_STAMP_AGE_SECONDS: ${LINKEDIN_COMMENTATOR_HEALTH_MAX_STAMP_AGE_SECONDS:-7500}
+#       LINKEDIN_COMMENTATOR_HEALTH_MAX_STATUS_AGE_SECONDS: ${LINKEDIN_COMMENTATOR_HEALTH_MAX_STATUS_AGE_SECONDS:-7500}
+#       LINKEDIN_COMMENTATOR_CONTROL_DIR: /shared/comment_state
+#       LINKEDIN_COMMENTATOR_ALERT_PATH: /shared/comment_state/linkedin_commentator_alert.json
+#     depends_on:
+#       linkedin-browser:
+#         condition: service_healthy
+#     volumes:
+#       - ./shared/legacy_state:/Users/deploydog-ai/LinkedIn/shared/legacy_state
+#       - ./shared/message_state:/Users/deploydog-ai/LinkedIn/shared/message_state
+#       - ./shared/comment_state:/Users/deploydog-ai/LinkedIn/shared/comment_state
+#       - ./shared/comment_state:/shared/comment_state
+#       - ./shared/screenshots:/Users/deploydog-ai/LinkedIn/BlockScreenshots
+#       - ./shared/resumes:/Users/deploydog-ai/Downloads/RESUME:ro
+#       - ./shared/logs:/shared/logs
+#       - ./shared/block_screenshots:/shared/block_screenshots
+#       - linkedin_runtime:/shared/runtime
+#       - /Users/deploydog-ai/.codex:/root/.codex:ro
+#       - ./.hermes_stats_bot.env:/Users/deploydog-ai/LinkedIn/.hermes_stats_bot.env:ro
+#     restart: unless-stopped
+#     healthcheck:
+#       test: ["CMD", "/app/scripts/healthcheck.sh"]
+#       interval: 60s
+#       timeout: 10s
+#       retries: 3
+#       start_period: 90s
+
+volumes:
+  linkedin_browser_profile:
+  linkedin_runtime:

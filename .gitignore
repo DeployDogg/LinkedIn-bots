@@ -1,0 +1,54 @@
+# Secrets and local configuration
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+*.p12
+*.pfx
+*.crt
+*.cer
+secrets/
+
+# macOS and editor metadata
+.DS_Store
+.idea/
+.vscode/
+
+# Hermes and local orchestration state
+.hermes/
+.hermes_stats_bot.env
+.lily-central-browser-migration.lock/
+
+# Browser profiles, cookies, caches, screenshots, generated diagnostics, and private working data
+BlockScreenshots/
+hirehi/output/
+shared/legacy_state/
+shared/logs/
+shared/state/
+shared/browser_session_backup/
+shared/comment_state/
+shared/message_state/
+shared/runtime/
+shared/screenshots/
+shared/resumes/
+shared/legacy_launchd_backup/
+tmp/
+
+# Generated runtime logs and locks
+data/state/**/logs/
+data/state/**/*.log
+data/state/**/*.lock
+data/state/**/*_state.json
+data/state/**/*_status.json
+data/state/**/*_actions_*.jsonl
+
+# Python and test caches
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.coverage
+htmlcov/
+
+# Migration artifacts
+.migration-backups/

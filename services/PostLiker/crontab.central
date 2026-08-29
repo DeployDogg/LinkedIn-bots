@@ -1,0 +1,4 @@
+# central scheduler idle crontab
+# Worker containers stay healthy and docker compose exec-ready.
+# The host-side scripts/linkedin_scheduler.py is the only production scheduler.
+* * * * * date '+%Y-%m-%dT%H:%M:%S%z central scheduler idle' >> /shared/logs/${SERVICE_NAME:-service}.cron.last

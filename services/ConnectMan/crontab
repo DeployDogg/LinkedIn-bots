@@ -1,0 +1,1 @@
+0 11 * * 1 /app/scripts/run.sh >> /shared/logs/ConnectMan/cron.log 2>&1

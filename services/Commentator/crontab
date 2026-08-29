@@ -1,0 +1,1 @@
+17 10 * * * /app/scripts/run.sh >> /shared/logs/Commentator/cron.log 2>&1

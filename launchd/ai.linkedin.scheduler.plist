@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+  <key>Label</key>
+  <string>ai.linkedin.scheduler</string>
+  <key>ProgramArguments</key>
+  <array>
+    <string>/Users/deploydog-ai/LinkedIn/scripts/launchd/linkedin_scheduler_launchd.sh</string>
+  </array>
+  <key>WorkingDirectory</key>
+  <string>/Users/deploydog-ai/LinkedIn</string>
+  <key>RunAtLoad</key>
+  <true/>
+  <key>KeepAlive</key>
+  <true/>
+  <key>StandardOutPath</key>
+  <string>/Users/deploydog-ai/LinkedIn/shared/logs/LinkedInScheduler/launchd.out.log</string>
+  <key>StandardErrorPath</key>
+  <string>/Users/deploydog-ai/LinkedIn/shared/logs/LinkedInScheduler/launchd.err.log</string>
+  <key>EnvironmentVariables</key>
+  <dict>
+    <key>PATH</key>
+    <string>/opt/homebrew/bin:/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin</string>
+    <key>TZ</key>
+    <string>America/Argentina/Buenos_Aires</string>
+    <key>PYTHONUNBUFFERED</key>
+    <string>1</string>
+  </dict>
+</dict>
+</plist>
